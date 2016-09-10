@@ -1,0 +1,20 @@
+{
+  "name": "flatreality",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/mbvdlza/flatreality.git"
+  },
+  "author": "Marlon B van der Linde",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/mbvdlza/flatreality#readme",
+  "devDependencies": {
+    "html-webpack-plugin": "^2.22.0",
+    "webpack": "^1.13.2"
+  }
+}

@@ -32,15 +32,19 @@ class CrateGroup extends WorldObject {
              */
             this.crateGeometry = new THREE.CubeGeometry(1, 1, 1);
             this.crateGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
-            this.crateMaterial = new THREE.MeshDepthMaterial({overdraw: true});
+            this.crateMaterial = new THREE.MeshLambertMaterial(
+                {
+                    overdraw: true,
+                    color: 0x7575a3
+                });
             this.baseCrateExists = true;
         }
 
         let crateMesh = new THREE.Mesh(this.crateGeometry.clone(), this.crateMaterial.clone());
-        crateMesh.position.x = Math.floor(Math.random() * 200 - 100) * 4;
-        crateMesh.position.z = Math.floor(Math.random() * 200 - 100) * 4;
-        crateMesh.scale.x = Math.random() * 50 + 10;
-        crateMesh.scale.y = Math.random() * crateMesh.scale.x * 8 + 8;
+        crateMesh.position.x = Math.floor(Math.random() * 200 - 100) * 6;
+        crateMesh.position.z = Math.floor(Math.random() * 200 - 100) * 6;
+        crateMesh.scale.x = Math.random() * this.crateSizeSquareAverage;
+        crateMesh.scale.y = crateMesh.scale.x * 1.2;
         crateMesh.scale.z = crateMesh.scale.x;
         return crateMesh;
     }
@@ -61,7 +65,6 @@ class CrateGroup extends WorldObject {
          */
         for (let n of this.generateCrateMesh(quantity)) {
             count++;
-            console.log('CratedMergedGroup generating: ' + count);
             n.updateMatrix();
             // merge the new crate geom and it's matrix into the single group
             crateGroupGeometry.merge(n.geometry, n.matrix);
@@ -74,6 +77,10 @@ class CrateGroup extends WorldObject {
         }
 
         let crateGroupMesh = new THREE.Mesh(crateGroupGeometry, sharedMaterial);
+        if (true) { // @todo shadowconfig, move it to Tuning!
+            crateGroupMesh.castShadow = true;
+            crateGroupMesh.receiveShadow = true;
+        }
         return crateGroupMesh;
     }
 
@@ -83,7 +90,6 @@ class CrateGroup extends WorldObject {
      */
     *generateCrateMesh (quantity) {
         while (this.createdCratesCount < quantity) {
-            console.log('Generating crate number ' + this.createdCratesCount);
             yield this.createClonedCrateMesh();
             this.createdCratesCount++;
         }

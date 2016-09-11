@@ -1,12 +1,15 @@
 "use strict";
 
-var THREE = require('three');
+let THREE = require('three');
+
+let CrateGroup = require('./objects/crate');
 
 const RENDERER = "webgl";   // or 'canvas' or ...
 
 class Setup {
 
-    constructor() {
+    constructor(tuningParams) {
+        this.tuningParams = tuningParams;
         this.preinit().then(() => {
             this.init();
         }).catch(() => {
@@ -15,7 +18,7 @@ class Setup {
     }
 
     /**
-     * Any logic neccesary prior to setup and render loop, can live here.
+     * Any logic necessary prior to setup and render loop, can live here.
      * @returns {Promise}
      */
     preinit() {
@@ -65,10 +68,10 @@ class Setup {
         console.log('Running setupThree()');
         return new Promise((resolve, reject) => {
             this.scene = new THREE.Scene();
-            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+            this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 5000);
             this.camera.position.y = 400;
-            this.camera.position.z = 400;
-            this.camera.position.x = -45 * Math.PI / 180;   // rotation = radians
+            this.camera.position.z = 1500;
+            this.camera.position.x = -40 * Math.PI / 180;   // rotation = radians, tilt camera 40 degrees down.
 
             this.getRenderer(RENDERER).then((renderer) => {
                 this.renderer = renderer;
@@ -145,6 +148,23 @@ class Setup {
             // rotate ground plane to proper orientation and add to scene
             this.ground.rotation.x = -90 * Math.PI / 180;
             this.scene.add(this.ground);
+
+
+            /**
+             * HACK IN SOME CRATES FOR NOW
+             */
+
+            let crateGroup = new CrateGroup(5);
+            //for (let n of crateGroup.generateCrate(20)) {
+            //    this.scene.add(n);
+            //}
+            this.scene.add(crateGroup.generateCrateMeshMergedGroup(10));
+            /**
+             * ====== /HACK ====
+             */
+
+
+
             return resolve();
         });
     }

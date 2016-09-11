@@ -36,13 +36,21 @@ class Setup {
      */
     init() {
         document.body.style.background = "#d7f0f7";
+
         // First let setupThree happen, then setupWorld, then fire the render loop.
         this.setupThree().then(() => {
             this.setupWorld().then(() => {
-                requestAnimationFrame(() => {
+
+                /**
+                 * This is the only way I can get es6 arrow operator + recursive function to work :|
+                 */
+                var animate = () => {
                     this.renderer.render(this.scene, this.camera);
                     requestAnimationFrame(animate);
-                });
+                };
+
+                requestAnimationFrame(animate);
+
             });
         }).catch((e) => {
             console.log('setupThree Unhappy: ' + e);

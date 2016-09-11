@@ -1,17 +1,18 @@
 "use strict";
 
 let THREE = require('three');
-
-// Stuff added for devel
-let CrateGroup = require('./objects/crate');
-let LightBasic = require('./objects/LightBasic');
+let mainLoop = require('./renderloop');
+let World = require('./world');
 
 const RENDERER = "webgl";   // or 'canvas' or ...
 
 class Setup {
 
-    constructor(tuningParams) {
-        this.tuningParams = tuningParams;
+    /**
+     * Setup constructor.
+     * Initiated pre-init, on resolve, initiates init.
+     */
+    constructor() {
         this.preinit().then(() => {
             this.init();
         }).catch(() => {
@@ -21,6 +22,7 @@ class Setup {
 
     /**
      * Any logic necessary prior to setup and render loop, can live here.
+     * This is probably where configuration loading will have to happen.
      * @returns {Promise}
      */
     preinit() {
@@ -33,6 +35,7 @@ class Setup {
      * A planned method to deal with negative things...
      */
     handleFailureWithGrace() {
+        // @TODO
         return;
     }
 
@@ -40,16 +43,18 @@ class Setup {
      * Initialising/Bootstrapping and render loop kickoff.
      */
     init() {
-        document.body.style.background = "#d7f0f7";
+        document.body.style.background = "#19194d";
 
         // First let setupThree happen, then setupWorld, then fire the render loop.
         this.setupThree().then(() => {
-            this.setupWorld().then(() => {
+            this.world = new World(this.scene);
+            this.world.initWorld().then(() => {
 
                 /**
-                 * This is the only way I can get es6 arrow operator + recursive function to work :|
+                 * This is the only way I can get es6 arrow operator + recursive function to work.
                  */
                 var animate = () => {
+                    mainLoop();
                     this.renderer.render(this.scene, this.camera);
                     requestAnimationFrame(animate);
                 };
@@ -69,16 +74,12 @@ class Setup {
     setupThree() {
         console.log('Running setupThree()');
         return new Promise((resolve, reject) => {
-            this.scene = new THREE.Scene();
-            this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 5000);
-            this.camera.position.y = 120;
-            this.camera.position.z = 1000;
-            this.camera.position.x = -20 * Math.PI / 180;   // rotation = radians, tilt camera 20 degrees down.
+            this.scene = new THREE.Scene();                     // create Scene
+            this.camera = this.setupInitialCamera();            // Setup Camera
 
-            this.getRenderer(RENDERER).then((renderer) => {
+            this.initializeRenderer(RENDERER).then((renderer) => {     // Setup Renderer
                 this.renderer = renderer;
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
-
                 document.body.appendChild(this.renderer.domElement)
                 return resolve();
             });
@@ -86,13 +87,25 @@ class Setup {
     }
 
     /**
-     * Gets the current renderer, else creates one.
+     * Create and set up the initial camera.
+     * @returns {*|PerspectiveCamera}
+     */
+    setupInitialCamera() {
+        let camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 5000);
+        camera.position.y = 120;
+        camera.position.z = 1000;
+        camera.position.x = -20 * Math.PI / 180;   // rotation = radians, tilt camera 20 degrees down.
+        return camera;
+    }
+
+    /**
+     * Gets the current renderer, else creates one and configures it.
      * If webGL is specified, but not available, Canvas is returned in any case.
      * @returns {THREE.CanvasRenderer|*|CanvasRenderer|THREE.WebGLRenderer}
      */
-    getRenderer(renderType) {
+    initializeRenderer(renderType) {
 
-        // @todo - break out options to Tuning
+        // @todo - break out options to Tuning ---------------
         let rendererOpts = {
             antialias: true
         };
@@ -100,14 +113,18 @@ class Setup {
             shadowMapSoft: true,
             shadowMapEnabled: true
         }
+        // ---------------------------------------------------
 
         return new Promise((resolve, reject) => {
             if (!this.renderer) {
                 if (renderType == 'webgl' && this.webglAvailable()) {
                     console.log('Creating a WebGLRenderer Instance.');
                     this.renderer = new THREE.WebGLRenderer(rendererOpts);
+
+                    // Configure Shadows from config
                     this.renderer.shadowMap.enabled = config.shadowMapEnabled;
                     this.renderer.shadowMapSoft = config.shadowMapSoft;
+
                 } else {
                     console.log('Creating a CanvasRenderer Instance.');
                     this.renderer = new THREE.CanvasRenderer();
@@ -135,56 +152,6 @@ class Setup {
         }
     }
 
-    /**
-     * Setup the world aspects, cloned/merged objects, groundplane etc.
-     * @returns {Promise}
-     */
-    setupWorld() {
-        console.log('Running setupWorld()');
-
-        return new Promise((resolve, reject) => {
-            // Ground plane
-            var groundGeo = new THREE.PlaneGeometry(3000, 3000, 20, 20);
-            var groundMat = new THREE.MeshLambertMaterial(
-                {
-                    color: 0x604020,
-                    overdraw: true
-                }
-            );
-            this.ground = new THREE.Mesh(groundGeo, groundMat);
-            this.ground.receiveShadow = true;   // @todo - break out options to Tuning
-
-            // rotate ground plane to proper orientation and add to scene
-            this.ground.rotation.x = -90 * Math.PI / 180;
-
-            this.scene.add(this.ground);
-
-
-            /**
-             * HACK IN SOME STUFF FOR NOW
-             */
-            let crateGroup = new CrateGroup(200);
-            //for (let n of crateGroup.generateCrate(20)) {
-            //    this.scene.add(n);
-            //}
-            this.scene.add(crateGroup.generateCrateMeshMergedGroup(80));
-
-            let lightBasic = new LightBasic();
-            let directionalLamp = lightBasic.create('directional', 'MainLight');
-            this.scene.add(directionalLamp);
-
-            this.scene.fog = new THREE.Fog(0x9db3b5, 0, 1500);  // linear fog
-
-            /**
-             * ====== /HACK ====
-             */
-
-
-
-            return resolve();
-        });
-    }
-
-};
+}
 
 module.exports = Setup;

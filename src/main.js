@@ -1,7 +1,8 @@
-'use strict';
+"use strict";
 
-let Tuning = require('./tuning.js');
+let Tuning = require("./tuning");
 let t = new Tuning();
 
-console.log(t.getparms());
+let Setup = require("./setup");
 
+let s = new Setup();

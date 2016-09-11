@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
 class Tuning {
 
     constructor() {
         this.params = {
-            name: 'testing',
-            ver: '1.00'
+            name: "testing",
+            ver: "1.00"
         };
     }
 
@@ -13,6 +13,6 @@ class Tuning {
         return this.params;
     }
 
-};
+}
 
 module.exports = Tuning;

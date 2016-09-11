@@ -1,0 +1,13 @@
+{
+    "browser": true,
+    "camelcase": false,
+    "esnext": true,
+    "indent": 4,
+    "latedef": false,
+    "newcap": true,
+    "quotmark": "double",
+    "globalstrict": true,
+    "globals": {
+        "console": false
+    }
+}

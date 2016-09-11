@@ -22,7 +22,7 @@ class CrateGroup extends WorldObject {
     /**
      * Creates a single cloned crate from the original (base) crate.
      */
-    createClonedCrate() {
+    createClonedCrateMesh() {
         if (!this.baseCrateExists) {
             /**
              * Explanation:
@@ -36,44 +36,55 @@ class CrateGroup extends WorldObject {
             this.baseCrateExists = true;
         }
 
-        let crate = new THREE.Mesh(this.crateGeometry.clone(), this.crateMaterial.clone());
-        crate.position.x = Math.floor(Math.random() * 200 - 100) * 4;
-        crate.position.z = Math.floor(Math.random() * 200 - 100) * 4;
-        crate.scale.x = Math.random() * 50 + 10;
-        crate.scale.y = Math.random() * crate.scale.x * 8 + 8;
-        crate.scale.z = crate.scale.x;
-        return crate;
+        let crateMesh = new THREE.Mesh(this.crateGeometry.clone(), this.crateMaterial.clone());
+        crateMesh.position.x = Math.floor(Math.random() * 200 - 100) * 4;
+        crateMesh.position.z = Math.floor(Math.random() * 200 - 100) * 4;
+        crateMesh.scale.x = Math.random() * 50 + 10;
+        crateMesh.scale.y = Math.random() * crateMesh.scale.x * 8 + 8;
+        crateMesh.scale.z = crateMesh.scale.x;
+        return crateMesh;
     }
 
     /**
-     * Generates a merged group of crate geometries, preferred for optimization.
+     * Generates a merged group of crate meshes, preferred for optimization.
      * @param quantity Numbers of crates in the group.
      * @returns {*|Geometry}
      */
-    generateCrateMergedGroup(quantity) {
+    generateCrateMeshMergedGroup(quantity) {
         // The merged new geometry to store everything in.
         let crateGroupGeometry = new THREE.Geometry();
+        let count = 0;
+        let sharedMaterial = undefined;
 
-        let tempMaterial = new THREE.MeshDepthMaterial({overdraw: true});
+        /**
+         * Generates crate meshes as n for quantity
+         */
+        for (let n of this.generateCrateMesh(quantity)) {
+            count++;
+            console.log('CratedMergedGroup generating: ' + count);
+            n.updateMatrix();
+            // merge the new crate geom and it's matrix into the single group
+            crateGroupGeometry.merge(n.geometry, n.matrix);
 
-        for (let i = 0; i < quantity; i++) {
-            console.log('CratedMergedGroup generating: ' + i);
-            let crate = this.createClonedCrate();
-            crate.updateMatrix();
-            crateGroupGeometry.merge(crate.geometry, crate.matrix);
+            // Grab the material one time, will apply this to everything.
+            // Material is determined by crate creation method, so just steal it from there.
+            if (!sharedMaterial) {
+                sharedMaterial = n.material;
+            }
         }
-        let crateGroupMesh = new THREE.Mesh(crateGroupGeometry, tempMaterial);
+
+        let crateGroupMesh = new THREE.Mesh(crateGroupGeometry, sharedMaterial);
         return crateGroupMesh;
     }
 
     /**
-     * Create Crate Generator generates standlone, unmerged crate geometries.
+     * Create Crate Generator generates standlone, unmerged crate meshes.
      * @param quantity Numbers of crates to generate.
      */
-    *generateCrate (quantity) {
+    *generateCrateMesh (quantity) {
         while (this.createdCratesCount < quantity) {
             console.log('Generating crate number ' + this.createdCratesCount);
-            yield this.createClonedCrate();
+            yield this.createClonedCrateMesh();
             this.createdCratesCount++;
         }
     }

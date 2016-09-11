@@ -158,7 +158,7 @@ class Setup {
             //for (let n of crateGroup.generateCrate(20)) {
             //    this.scene.add(n);
             //}
-            this.scene.add(crateGroup.generateCrateMergedGroup(10));
+            this.scene.add(crateGroup.generateCrateMeshMergedGroup(10));
             /**
              * ====== /HACK ====
              */

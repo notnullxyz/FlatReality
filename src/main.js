@@ -1,17 +1,24 @@
 "use strict";
 
-// Create EMPTY WORLD
+
 let Setup = require("./setup");
+let GameLoop = require("./gameloop");
+let Input = require("./input");
+
+// Create EMPTY WORLD
 let s = new Setup();
 s.init().then((vitals) => {
 
     console.log(vitals);
 
     // @todo unset `Setup` and `s`
-
     // Run Game Loop
-    let GameLoop = require("./gameloop");
-    let loop = new GameLoop(vitals.renderer, vitals.scene, vitals.camera);
+    let loop = new GameLoop(
+        vitals.renderer,
+        vitals.scene,
+        vitals.camera,
+        new Input(vitals.camera).get()
+    );
 
     // @todo unset `vitals`
 

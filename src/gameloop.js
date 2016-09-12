@@ -10,10 +10,11 @@ class GameLoop {
     /**
      * Construction sets off the loop. Do not construct until ready!
      */
-    constructor(renderer, scene, camera) {
+    constructor(renderer, scene, camera, input) {
         this.renderer = renderer;
         this.scene = scene;
         this.camera = camera;
+        this.input = input;
 
         this.loop();
     }

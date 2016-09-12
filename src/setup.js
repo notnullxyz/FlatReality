@@ -46,7 +46,6 @@ class Setup {
         return new Promise((resolve, reject) => {
             this.setupThree().then(() => {      // Setup ThreeJS
                 this.setupWorld().then(() => {  // Set the Empty World initials
-
                     console.log('All done... ready to loop');
                     let vitals = {
                         renderer: this.renderer,
@@ -54,21 +53,6 @@ class Setup {
                         camera: this.camera
                     };
                     resolve(vitals);
-
-
-
-                    // Then bounce into the main loop.
-
-                    ///**
-                    // * This is the only way I can get es6 arrow operator + recursive function to work :|
-                    // */
-                    //var animate = () => {
-                    //    this.renderer.render(this.scene, this.camera);
-                    //    requestAnimationFrame(animate);
-                    //};
-                    //
-                    //requestAnimationFrame(animate);
-
                 });
             }).catch((e) => {
                 console.log('setupThree Unhappy: ' + e);
@@ -173,7 +157,7 @@ class Setup {
             this.ground.rotation.x = -90 * Math.PI / 180;
 
             this.scene.add(this.ground);
-            unset(this.ground);
+            delete this.ground;
 
 
             /**
@@ -183,7 +167,7 @@ class Setup {
             //for (let n of crateGroup.generateCrate(20)) {
             //    this.scene.add(n);
             //}
-            this.scene.add(crateGroup.generateCrateMeshMergedGroup(80));
+            this.scene.add(crateGroup.generateCrateMeshMergedGroup(8));
 
             let lightBasic = new LightBasic();
             let directionalLamp = lightBasic.create('directional', 'MainLight');

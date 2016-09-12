@@ -10,8 +10,7 @@ const RENDERER = "webgl";   // or 'canvas' or ...
 
 class Setup {
 
-    constructor(tuningParams) {
-        this.tuningParams = tuningParams;
+    constructor() {
         this.preinit().then(() => {
             this.init();
         }).catch(() => {
@@ -25,7 +24,7 @@ class Setup {
      */
     preinit() {
         return new Promise((resolve, reject) => {
-            return resolve();
+            resolve();
         });
     }
 
@@ -37,28 +36,44 @@ class Setup {
     }
 
     /**
-     * Initialising/Bootstrapping and render loop kickoff.
+     * Create the start point, EMPTY WORLD before networking, before anything else.
+     * This includes camera, ground, lights. Nothing else exists until the server says so... later.
+     * @returns {Promise} wrapping object with properties renderer, scene, camera
      */
     init() {
         document.body.style.background = "#d7f0f7";
 
-        // First let setupThree happen, then setupWorld, then fire the render loop.
-        this.setupThree().then(() => {
-            this.setupWorld().then(() => {
+        return new Promise((resolve, reject) => {
+            this.setupThree().then(() => {      // Setup ThreeJS
+                this.setupWorld().then(() => {  // Set the Empty World initials
 
-                /**
-                 * This is the only way I can get es6 arrow operator + recursive function to work :|
-                 */
-                var animate = () => {
-                    this.renderer.render(this.scene, this.camera);
-                    requestAnimationFrame(animate);
-                };
+                    console.log('All done... ready to loop');
+                    let vitals = {
+                        renderer: this.renderer,
+                        scene: this.scene,
+                        camera: this.camera
+                    };
+                    resolve(vitals);
 
-                requestAnimationFrame(animate);
 
+
+                    // Then bounce into the main loop.
+
+                    ///**
+                    // * This is the only way I can get es6 arrow operator + recursive function to work :|
+                    // */
+                    //var animate = () => {
+                    //    this.renderer.render(this.scene, this.camera);
+                    //    requestAnimationFrame(animate);
+                    //};
+                    //
+                    //requestAnimationFrame(animate);
+
+                });
+            }).catch((e) => {
+                console.log('setupThree Unhappy: ' + e);
+                reject(e);
             });
-        }).catch((e) => {
-            console.log('setupThree Unhappy: ' + e);
         });
     }
 
@@ -158,6 +173,7 @@ class Setup {
             this.ground.rotation.x = -90 * Math.PI / 180;
 
             this.scene.add(this.ground);
+            unset(this.ground);
 
 
             /**

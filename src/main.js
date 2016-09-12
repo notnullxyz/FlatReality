@@ -1,8 +1,10 @@
 "use strict";
 
 let Tuning = require("./tuning");
-let t = new Tuning();
+let sysTune = new Tuning();
 
 let Setup = require("./setup");
+let s = new Setup(sysTune.getparms());
+// After this, the loop runs...
 
-let s = new Setup();
+

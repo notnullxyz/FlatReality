@@ -8,9 +8,10 @@ FlatReality is the codename for the virtual world project. If you have to ask, y
 * Clone
 * Install webpack globally: `npm install webpack -g`
 * Install deps: `npm install`
-* Run webpack: `webpack`
-* Run the simple python webserver on your dev container/machine `./simplePythonHttpd.py`
-* Browse to the dist/ build on `http://localhost:8000/dist/`
+* Run webpack to build dist files: `webpack`, or,
+* Run webpack in watch mode: `webpack --progress --colors --watch` or,
+* Run webpack dev server, the best way... `webpack-dev-server --progress --colors` (but this will require install of `npm install webpack-dev-server -g`)
+* Browse to the dist/ build on `http://localhost:8080` - bob's your uncle.
 
 ### Code ###
 * Create a feature branch off **dev** `git checkout -b 20160910_someFeature` (or whatever really)

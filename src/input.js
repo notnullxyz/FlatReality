@@ -1,6 +1,7 @@
 "use strict";
 
-let THREE = require("three");
+// hack... import three via controls added to it...
+let THREE = require("./FirstPersonControlsCopy");
 
 const DEFAULT_MOVE_SPEED = 100;
 const DEFAULT_LOOK_SPEED = 0.1;
@@ -14,8 +15,8 @@ class InputControls {
      */
     constructor(camera, config = {}) {
         this.config = config;
-        THREE.FirstPersonControls(camera);
-        //this.controls = new FPSControls(camera);
+
+        this.controls = new THREE.FirstPersonControls(camera);
         this.controls.movementSpeed = this.config.movementSpeed || DEFAULT_MOVE_SPEED;
         this.controls.lookSpeed = this.config.lookSpeed || DEFAULT_LOOK_SPEED;
     }

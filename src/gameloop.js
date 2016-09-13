@@ -11,11 +11,12 @@ class GameLoop {
      * Construction sets off the loop. Do not construct until ready!
      */
     constructor(renderer, scene, camera, input) {
+        console.log(this.input);
         this.renderer = renderer;
         this.scene = scene;
         this.camera = camera;
         this.input = input;
-
+        this.clock = new THREE.Clock();
         this.loop();
     }
 
@@ -28,6 +29,7 @@ class GameLoop {
          */
         var animate = () => {
             this.renderer.render(this.scene, this.camera);
+            this.input.update(this.clock.getDelta());
             requestAnimationFrame(animate);
         };
 

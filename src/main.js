@@ -9,15 +9,14 @@ let Input = require("./input");
 let s = new Setup();
 s.init().then((vitals) => {
 
-    console.log(vitals);
-
     // @todo unset `Setup` and `s`
     // Run Game Loop
+    let controls = new Input(vitals.camera);
     let loop = new GameLoop(
         vitals.renderer,
         vitals.scene,
         vitals.camera,
-        new Input(vitals.camera).get()
+        controls.get()
     );
 
     // @todo unset `vitals`

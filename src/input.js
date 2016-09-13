@@ -1,34 +1,149 @@
 "use strict";
 
-// hack... import three via controls added to it...
-let THREE = require("./FirstPersonControlsCopy");
+// hack... import three with controls constructor on it.
+let THREE = require("./controls/pointerlock");
 
-const DEFAULT_MOVE_SPEED = 100;
-const DEFAULT_LOOK_SPEED = 0.1;
+class Input {
 
-class InputControls {
-
-    /**
-     * Constructor for InputControls.
-     * @param camera Camera object to move with.
-     * @param config Configuration objects relating controls and movement.
-     */
-    constructor(camera, config = {}) {
-        this.config = config;
-
-        this.controls = new THREE.FirstPersonControls(camera);
-        this.controls.movementSpeed = this.config.movementSpeed || DEFAULT_MOVE_SPEED;
-        this.controls.lookSpeed = this.config.lookSpeed || DEFAULT_LOOK_SPEED;
+    constructor(camera) {
+        this.havePointerLock = this.checkForPointerLock();
+        this.controls = new THREE.PointerLockControls(camera);
+        this.velocity = new THREE.Vector3();
+        this.clock = new THREE.Clock();
+        this.initControls();
+        this.initPointerLock();
     }
 
-    /**
-     * Returns the controls object
-     * @returns {THREE.FirstPersonControls}
-     */
     get() {
-        return this.controls;
+        return this.controls.getObject();
     }
 
+    checkForPointerLock() {
+        return 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+    }
+
+    initPointerLock() {
+        this.element = document.body;
+        if (this.havePointerLock) {
+
+            document.addEventListener('pointerlockchange', this.pointerlockchange, false);
+            document.addEventListener('mozpointerlockchange', this.pointerlockchange, false);
+            document.addEventListener('webkitpointerlockchange', this.pointerlockchange, false);
+
+            document.addEventListener('pointerlockerror', this.pointerlockerror, false);
+            document.addEventListener('mozpointerlockerror', this.pointerlockerror, false);
+            document.addEventListener('webkitpointerlockerror', this.pointerlockerror, false);
+
+            this.element.addEventListener('click', this.requestPointerLock, false);
+
+        } else {
+            this.element.innerHTML = 'Bad browser; No pointer lock';
+        }
+    }
+
+    requestPointerLock(event) {
+        this.element.requestPointerLock = this.element.requestPointerLock || this.element.mozRequestPointerLock
+            || this.element.webkitRequestPointerLock;
+        this.element.requestPointerLock();
+    }
+
+    pointerlockchange(event) {
+        if (document.pointerLockElement === this.element ||
+            document.mozPointerLockElement === this.element ||
+            document.webkitPointerLockElement === this.element) {
+            this.controlsEnabled = true;
+            this.controls.enabled = true;
+        } else {
+            this.controls.enabled = false;
+        }
+    }
+
+    pointerlockerror(event) {
+        this.element.innerHTML = 'PointerLock Error';
+    }
+
+    onKeyDown(e) {
+        switch (e.keyCode) {
+            case 38: // up
+            case 87: // w
+                this.moveForward = true;
+                break;
+            case 37: // left
+            case 65: // a
+                this.moveLeft = true;
+                break;
+            case 40: // down
+            case 83: // s
+                this.moveBackward = true;
+                break;
+            case 39: // right
+            case 68: // d
+                this.moveRight = true;
+                break;
+            case 32: // space
+                if (this.canJump === true) this.velocity.y += 350;
+                this.canJump = false;
+                break;
+        }
+    }
+
+    onKeyUp(e) {
+        switch (e.keyCode) {
+            case 38: // up
+            case 87: // w
+                this.moveForward = false;
+                break;
+            case 37: // left
+            case 65: // a
+                this.moveLeft = false;
+                break;
+            case 40: // down
+            case 83: // s
+                this.moveBackward = false;
+                break;
+            case 39: // right
+            case 68: // d
+                this.moveRight = false;
+                break;
+        }
+    }
+
+    initControls() {
+        document.addEventListener('keydown', this.onKeyDown, false);
+        document.addEventListener('keyup', this.onKeyUp, false);
+        this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
+    }
+
+    updateControls() {
+        if (this.controlsEnabled) {
+            let delta = this.clock.getDelta();
+            let walkingSpeed = 200.0;
+
+            this.velocity.x -= this.velocity.x * 10.0 * delta;
+            this.velocity.z -= this.velocity.z * 10.0 * delta;
+            this.velocity.y -= 9.8 * 100.0 * delta;
+
+            if (this.moveForward) this.velocity.z -= walkingSpeed * delta;
+            if (this.moveBackward) this.velocity.z += walkingSpeed * delta;
+
+            if (this.moveLeft) this.velocity.x -= walkingSpeed * delta;
+            if (this.moveRight) this.velocity.x += walkingSpeed * delta;
+
+            if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
+                // play footstep sounds.
+            }
+
+            this.controls.getObject().translateX(this.velocity.x * delta);
+            this.controls.getObject().translateY(this.velocity.y * delta);
+            this.controls.getObject().translateZ(this.velocity.z * delta);
+
+            if (this.controls.getObject().position.y < 10) {
+                this.velocity.y = 0;
+                this.controls.getObject().position.y = 10;
+                this.canJump = true;
+            }
+        }
+    }
 }
 
-module.exports = InputControls;
+module.exports = Input;

@@ -3,15 +3,16 @@
 
 let Setup = require("./setup");
 let GameLoop = require("./gameloop");
-let Input = require("./input");
+let PLControls = require("./input");
 
 // Create EMPTY WORLD
 let s = new Setup();
 s.init().then((vitals) => {
 
-    // @todo unset `Setup` and `s`
+    let controls = new PLControls(vitals.camera);
+
     // Run Game Loop
-    let controls = new Input(vitals.camera);
+
     let loop = new GameLoop(
         vitals.renderer,
         vitals.scene,
@@ -19,7 +20,7 @@ s.init().then((vitals) => {
         controls.get()
     );
 
-    // @todo unset `vitals`
+    vitals = undefined;
 
 }).catch((error) => {
     console.log('Deal with error: ' + error);

@@ -20,7 +20,7 @@ s.init().then((vitals) => {
         plControls
     );
 
-    vitals = undefined;
+    vitals = null;
 
 }).catch((error) => {
     console.log('Deal with error: ' + error);

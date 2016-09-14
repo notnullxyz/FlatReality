@@ -3,11 +3,14 @@
 // hack... import three with controls constructor on it.
 let THREE = require("./controls/pointerlock");
 
+// globalise controls... fml
+let controls;
+
 class PLControls {
 
     constructor(camera) {
         this.havePointerLock = this.checkForPointerLock();
-        this.controls = new THREE.PointerLockControls(camera);
+        controls = new THREE.PointerLockControls(camera);
         this.velocity = new THREE.Vector3();
         this.clock = new THREE.Clock();
         this.element = null;
@@ -16,16 +19,18 @@ class PLControls {
     }
 
     get() {
-        return this.controls.getObject();
+        return controls.getObject();
+    }
+
+    getControls() {
+        return controls;
     }
 
     checkForPointerLock() {
-        console.log('checkForPointerLock');
         return 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
     }
 
     initPointerLock() {
-        console.log('initPointerLock');
         this.element = document.body;
         if (this.havePointerLock) {
 
@@ -45,7 +50,6 @@ class PLControls {
     }
 
     requestPointerLock(event) {
-        console.log('requestPointerLock');
         this.element = document.body;   // had to shove this in here, element having been undefined. Not right...
         this.element.requestPointerLock = this.element.requestPointerLock || this.element.mozRequestPointerLock
             || this.element.webkitRequestPointerLock;
@@ -53,20 +57,16 @@ class PLControls {
     }
 
     pointerlockchange(event) {
-        console.log('pointerLockChange: ');
-        console.log(this.controls);
         if (document.pointerLockElement === this.element ||
             document.mozPointerLockElement === this.element ||
             document.webkitPointerLockElement === this.element) {
-            this.controlsEnabled = true;
-            this.controls.enabled = true;
+            controls.enabled = true;
         } else {
-            this.controls.enabled = false;
+            controls.enabled = false;
         }
     }
 
     pointerlockerror(event) {
-        console.log('pointerLockError');
         this.element.innerHTML = 'PointerLock Error';
     }
 
@@ -74,6 +74,7 @@ class PLControls {
         switch (e.keyCode) {
             case 38: // up
             case 87: // w
+                console.log('w');
                 this.moveForward = true;
                 break;
             case 37: // left
@@ -123,7 +124,7 @@ class PLControls {
     }
 
     updateControls() {
-        if (this.controlsEnabled) {
+        if (controls.enabled) {
             let delta = this.clock.getDelta();
             let walkingSpeed = 200.0;
 
@@ -141,13 +142,13 @@ class PLControls {
                 // play footstep sounds.
             }
 
-            this.controls.getObject().translateX(this.velocity.x * delta);
-            this.controls.getObject().translateY(this.velocity.y * delta);
-            this.controls.getObject().translateZ(this.velocity.z * delta);
+            controls.getObject().translateX(this.velocity.x * delta);
+            controls.getObject().translateY(this.velocity.y * delta);
+            controls.getObject().translateZ(this.velocity.z * delta);
 
-            if (this.controls.getObject().position.y < 10) {
+            if (controls.getObject().position.y < 10) {
                 this.velocity.y = 0;
-                this.controls.getObject().position.y = 10;
+                controls.getObject().position.y = 10;
                 this.canJump = true;
             }
         }

@@ -2,6 +2,8 @@
 
 let THREE = require('three');
 
+let controlsG;
+
 /**
  * This class aims to be as empty and as basic as possible, this is the GAME LOOP!
  */
@@ -14,7 +16,7 @@ class GameLoop {
         this.renderer = renderer;
         this.scene = scene;
         this.camera = camera;
-        this.controls = controls;
+        controlsG = controls;
         this.loop();
     }
 
@@ -32,7 +34,7 @@ class GameLoop {
             /**
              * Added call outs...
              */
-            this.controls.updateControls(this.controls.get());     // call controls update.
+            controlsG.updateControls(controlsG.get());     // call controls update.
 
             requestAnimationFrame(animate);
         };

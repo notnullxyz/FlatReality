@@ -20,6 +20,7 @@
     "webpack": "^1.13.2"
   },
   "dependencies": {
-    "three": "^0.80.1"
+    "three": "^0.80.1",
+    "three-pointerlock": "0.0.2"
   }
 }

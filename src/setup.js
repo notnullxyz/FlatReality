@@ -11,11 +11,6 @@ const RENDERER = "webgl";   // or 'canvas' or ...
 class Setup {
 
     constructor() {
-        this.preinit().then(() => {
-            this.init();
-        }).catch(() => {
-            this.handleFailureWithGrace();
-        });
     }
 
     /**
@@ -42,21 +37,23 @@ class Setup {
      */
     init() {
         document.body.style.background = "#d7f0f7";
-
         return new Promise((resolve, reject) => {
-            this.setupThree().then(() => {      // Setup ThreeJS
-                this.setupWorld().then(() => {  // Set the Empty World initials
-                    console.log('All done... ready to loop');
-                    let vitals = {
-                        renderer: this.renderer,
-                        scene: this.scene,
-                        camera: this.camera
-                    };
-                    resolve(vitals);
+            this.preinit().then(() => {
+                this.setupThree().then(() => {      // Setup ThreeJS
+                    this.setupWorld().then(() => {  // Set the Empty World initials
+                        console.log('All done... ready to loop');
+                        let vitals = {
+                            renderer: this.renderer,
+                            scene: this.scene,
+                            camera: this.camera
+                        };
+                        resolve(vitals);
+                    });
+                }).catch((e) => {
+                    this.handleFailureWithGrace();
+                    console.log('setupThree Unhappy: ' + e);
+                    reject(e);
                 });
-            }).catch((e) => {
-                console.log('setupThree Unhappy: ' + e);
-                reject(e);
             });
         });
     }
@@ -163,11 +160,11 @@ class Setup {
             /**
              * HACK IN SOME STUFF FOR NOW
              */
-            let crateGroup = new CrateGroup(200);
+            let crateGroup = new CrateGroup(80);
             //for (let n of crateGroup.generateCrate(20)) {
             //    this.scene.add(n);
             //}
-            this.scene.add(crateGroup.generateCrateMeshMergedGroup(8));
+            this.scene.add(crateGroup.generateCrateMeshMergedGroup(50));
 
             let lightBasic = new LightBasic();
             let directionalLamp = lightBasic.create('directional', 'MainLight');

@@ -11,7 +11,6 @@ class GameLoop {
      * Construction sets off the loop. Do not construct until ready!
      */
     constructor(renderer, scene, camera, controls) {
-        console.log(this.input);
         this.renderer = renderer;
         this.scene = scene;
         this.camera = camera;
@@ -23,6 +22,7 @@ class GameLoop {
      * This is it...
      */
     loop() {
+
         /**
          * This is the only way I can get es6 arrow operator + recursive function to work :|
          */
@@ -32,7 +32,7 @@ class GameLoop {
             /**
              * Added call outs...
              */
-            this.controls.updateControls();     // call controls update.
+            this.controls.updateControls(this.controls.get());     // call controls update.
 
             requestAnimationFrame(animate);
         };

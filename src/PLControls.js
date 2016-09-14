@@ -3,13 +3,14 @@
 // hack... import three with controls constructor on it.
 let THREE = require("./controls/pointerlock");
 
-class Input {
+class PLControls {
 
     constructor(camera) {
         this.havePointerLock = this.checkForPointerLock();
         this.controls = new THREE.PointerLockControls(camera);
         this.velocity = new THREE.Vector3();
         this.clock = new THREE.Clock();
+        this.element = null;
         this.initControls();
         this.initPointerLock();
     }
@@ -19,10 +20,12 @@ class Input {
     }
 
     checkForPointerLock() {
+        console.log('checkForPointerLock');
         return 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
     }
 
     initPointerLock() {
+        console.log('initPointerLock');
         this.element = document.body;
         if (this.havePointerLock) {
 
@@ -42,12 +45,16 @@ class Input {
     }
 
     requestPointerLock(event) {
+        console.log('requestPointerLock');
+        this.element = document.body;   // had to shove this in here, element having been undefined. Not right...
         this.element.requestPointerLock = this.element.requestPointerLock || this.element.mozRequestPointerLock
             || this.element.webkitRequestPointerLock;
         this.element.requestPointerLock();
     }
 
     pointerlockchange(event) {
+        console.log('pointerLockChange: ');
+        console.log(this.controls);
         if (document.pointerLockElement === this.element ||
             document.mozPointerLockElement === this.element ||
             document.webkitPointerLockElement === this.element) {
@@ -59,6 +66,7 @@ class Input {
     }
 
     pointerlockerror(event) {
+        console.log('pointerLockError');
         this.element.innerHTML = 'PointerLock Error';
     }
 
@@ -146,4 +154,4 @@ class Input {
     }
 }
 
-module.exports = Input;
+module.exports = PLControls;

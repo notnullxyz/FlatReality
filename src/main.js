@@ -3,13 +3,13 @@
 
 let Setup = require("./setup");
 let GameLoop = require("./gameloop");
-let PLControls = require("./input");
+let PLControls = require("./PLControls");
 
 // Create EMPTY WORLD
 let s = new Setup();
 s.init().then((vitals) => {
 
-    let controls = new PLControls(vitals.camera);
+    let plControls = new PLControls(vitals.camera);
 
     // Run Game Loop
 
@@ -17,7 +17,7 @@ s.init().then((vitals) => {
         vitals.renderer,
         vitals.scene,
         vitals.camera,
-        controls.get()
+        plControls
     );
 
     vitals = undefined;

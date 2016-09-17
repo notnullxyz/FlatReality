@@ -140,15 +140,23 @@ class Setup {
 
         return new Promise((resolve, reject) => {
             // Ground plane
-            var groundGeo = new THREE.PlaneGeometry(3000, 3000, 20, 20);
-            var groundMat = new THREE.MeshPhongMaterial(
+            let groundGeo = new THREE.PlaneGeometry(3000, 3000, 20, 20);
+
+            // The default ground texture
+            let groundTex = new THREE.ImageUtils.loadTexture("../tex/rock.png");
+
+            let groundMat = new THREE.MeshLambertMaterial(
                 {
                     color: 0x604020,
-                    overdraw: true
+                    overdraw: true,
+                    map: groundTex
                 }
             );
             this.ground = new THREE.Mesh(groundGeo, groundMat);
             this.ground.receiveShadow = true;   // @todo - break out options to Tuning
+
+            this.ground.material.map.repeat.set(8, 8);
+            this.ground.material.map.wrapS = this.ground.material.map.wrapT = THREE.RepeatWrapping;
 
             // rotate ground plane to proper orientation and add to scene
             this.ground.rotation.x = -90 * Math.PI / 180;
@@ -158,7 +166,7 @@ class Setup {
 
 
             /**
-             * HACK IN SOME STUFF FOR NOW
+             * ============= HACK IN SOME STUFF FOR NOW =====================
              */
             let crateGroup = new CrateGroup(20);
             //for (let n of crateGroup.generateCrate(20)) {
@@ -168,13 +176,13 @@ class Setup {
 
 
             let ambient = LightFactory.create('ambient');
-            ambient.intensity = 0.55;
+            ambient.intensity = 0.85;
 
             let bulbLight = LightFactory.create('point', 0xffff99, 1, true, 2048, 600);
-            bulbLight.position.set(600, 200, 35);
+            bulbLight.position.set(500, 100, 35);
 
             let spotLight = LightFactory.create('spot', 0x66ff99, 1, true, 2048, 280);
-            spotLight.position.set(25, 30, 55);
+            spotLight.position.set(-25, 60, 55);
 
             // Some options for the spotLight
             spotLight.angle = Math.PI / 4;
@@ -197,14 +205,12 @@ class Setup {
             this.scene.add(bulbLight);
             //this.scene.add(bulbHelper);
 
-
-
             //this.scene.fog = new THREE.Fog(0x9db3b5, 600, 2000);  // linear fog
             //this.scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0035 );
 
 
             /**
-             * ====== /HACK ====
+             * ====== /HACK ====================================================
              */
 
 

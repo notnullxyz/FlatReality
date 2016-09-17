@@ -38,10 +38,16 @@ class CrateGroup extends WorldObject {
              */
             this.crateGeometry = new THREE.CubeGeometry(1, 1, 1);
             this.crateGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
+
+            let crateTexture = new THREE.ImageUtils.loadTexture("../../tex/crate2_diffuse.png");
+            let crateBump = THREE.ImageUtils.loadTexture("../../tex/crate2_bump.png");
+
             this.crateMaterial = new THREE.MeshLambertMaterial(
                 {
                     overdraw: true,
-                    color: this.color
+                    color: this.color,
+                    map: crateTexture,
+                    bumpMap: crateBump,
                 });
             this.baseCrateExists = true;
         }

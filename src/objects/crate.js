@@ -3,6 +3,8 @@
 let THREE = require('three');
 let WorldObject = require('./WorldObject');
 
+const DEFAULT_CRATE_COLOR = 0xbfbfbf;
+
 /**
  * A merged geometry of crates, procedurally generated.
  */
@@ -17,12 +19,16 @@ class CrateGroup extends WorldObject {
         this.crateSizeSquareAverage = crateSizeSquareAverage;
         this.createdCratesCount = 0;
         this.baseCrateExists = false;
+        this.color = DEFAULT_CRATE_COLOR;
     }
 
     /**
      * Creates a single cloned crate from the original (base) crate.
+     * @param color Optional color in Hex, defaults to a shade of grey.
+     * @returns {*|Mesh}
      */
-    createClonedCrateMesh() {
+    createClonedCrateMesh(color = DEFAULT_CRATE_COLOR) {
+        this.color = color;
         if (!this.baseCrateExists) {
             /**
              * Explanation:
@@ -35,7 +41,7 @@ class CrateGroup extends WorldObject {
             this.crateMaterial = new THREE.MeshLambertMaterial(
                 {
                     overdraw: true,
-                    color: 0x7575a3
+                    color: this.color
                 });
             this.baseCrateExists = true;
         }
@@ -52,9 +58,10 @@ class CrateGroup extends WorldObject {
     /**
      * Generates a merged group of crate meshes, preferred for optimization.
      * @param quantity Numbers of crates in the group.
+     * @param color Color in Hex, optional. Defaults to a shade of grey.
      * @returns {*|Geometry}
      */
-    generateCrateMeshMergedGroup(quantity) {
+    generateCrateMeshMergedGroup(quantity, color = DEFAULT_CRATE_COLOR) {
         // The merged new geometry to store everything in.
         let crateGroupGeometry = new THREE.Geometry();
         let count = 0;

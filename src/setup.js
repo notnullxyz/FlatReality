@@ -3,20 +3,14 @@
 let THREE = require('three');
 
 // Stuff added for devel
-let CrateGroup = require('./objects/crate');
-let LightBasic = require('./objects/LightBasic');
+let CrateGroup = require("./objects/crate");
+let LightFactory = require("./objects/lights/LightFactory");
 
 const RENDERER = "webgl";   // or 'canvas' or ...
 
 class Setup {
 
-    constructor(tuningParams) {
-        this.tuningParams = tuningParams;
-        this.preinit().then(() => {
-            this.init();
-        }).catch(() => {
-            this.handleFailureWithGrace();
-        });
+    constructor() {
     }
 
     /**
@@ -25,7 +19,7 @@ class Setup {
      */
     preinit() {
         return new Promise((resolve, reject) => {
-            return resolve();
+            resolve();
         });
     }
 
@@ -37,28 +31,30 @@ class Setup {
     }
 
     /**
-     * Initialising/Bootstrapping and render loop kickoff.
+     * Create the start point, EMPTY WORLD before networking, before anything else.
+     * This includes camera, ground, lights. Nothing else exists until the server says so... later.
+     * @returns {Promise} wrapping object with properties renderer, scene, camera
      */
     init() {
         document.body.style.background = "#d7f0f7";
-
-        // First let setupThree happen, then setupWorld, then fire the render loop.
-        this.setupThree().then(() => {
-            this.setupWorld().then(() => {
-
-                /**
-                 * This is the only way I can get es6 arrow operator + recursive function to work :|
-                 */
-                var animate = () => {
-                    this.renderer.render(this.scene, this.camera);
-                    requestAnimationFrame(animate);
-                };
-
-                requestAnimationFrame(animate);
-
+        return new Promise((resolve, reject) => {
+            this.preinit().then(() => {
+                this.setupThree().then(() => {      // Setup ThreeJS
+                    this.setupWorld().then(() => {  // Set the Empty World initials
+                        console.log('All done... ready to loop');
+                        let vitals = {
+                            renderer: this.renderer,
+                            scene: this.scene,
+                            camera: this.camera
+                        };
+                        resolve(vitals);
+                    });
+                }).catch((e) => {
+                    this.handleFailureWithGrace();
+                    console.log('setupThree Unhappy: ' + e);
+                    reject(e);
+                });
             });
-        }).catch((e) => {
-            console.log('setupThree Unhappy: ' + e);
         });
     }
 
@@ -70,10 +66,10 @@ class Setup {
         console.log('Running setupThree()');
         return new Promise((resolve, reject) => {
             this.scene = new THREE.Scene();
-            this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 5000);
-            this.camera.position.y = 120;
-            this.camera.position.z = 1000;
-            this.camera.position.x = -20 * Math.PI / 180;   // rotation = radians, tilt camera 20 degrees down.
+            this.camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 5000);
+            //this.camera.position.y = 120;
+            //this.camera.position.z = 1000;
+            //this.camera.position.x = -20 * Math.PI / 180;   // rotation = radians, tilt camera 20 degrees down.
 
             this.getRenderer(RENDERER).then((renderer) => {
                 this.renderer = renderer;
@@ -145,7 +141,7 @@ class Setup {
         return new Promise((resolve, reject) => {
             // Ground plane
             var groundGeo = new THREE.PlaneGeometry(3000, 3000, 20, 20);
-            var groundMat = new THREE.MeshLambertMaterial(
+            var groundMat = new THREE.MeshPhongMaterial(
                 {
                     color: 0x604020,
                     overdraw: true
@@ -158,22 +154,54 @@ class Setup {
             this.ground.rotation.x = -90 * Math.PI / 180;
 
             this.scene.add(this.ground);
+            delete this.ground;
 
 
             /**
              * HACK IN SOME STUFF FOR NOW
              */
-            let crateGroup = new CrateGroup(200);
+            let crateGroup = new CrateGroup(20);
             //for (let n of crateGroup.generateCrate(20)) {
             //    this.scene.add(n);
             //}
-            this.scene.add(crateGroup.generateCrateMeshMergedGroup(80));
+            this.scene.add(crateGroup.generateCrateMeshMergedGroup(500, 0x262626));
 
-            let lightBasic = new LightBasic();
-            let directionalLamp = lightBasic.create('directional', 'MainLight');
-            this.scene.add(directionalLamp);
 
-            this.scene.fog = new THREE.Fog(0x9db3b5, 0, 1500);  // linear fog
+            let ambient = LightFactory.create('ambient');
+            ambient.intensity = 0.55;
+
+            let bulbLight = LightFactory.create('point', 0xffff99, 1, true, 2048, 600);
+            bulbLight.position.set(600, 200, 35);
+
+            let spotLight = LightFactory.create('spot', 0x66ff99, 1, true, 2048, 280);
+            spotLight.position.set(25, 30, 55);
+
+            // Some options for the spotLight
+            spotLight.angle = Math.PI / 4;
+            spotLight.penumbra = 0.25;
+            spotLight.decay = 0.4;
+            // spotLight.distance = 250;
+            // spotLight.shadow.mapSize.width = 2048;
+            // spotLight.shadow.mapSize.height = 2048;
+            //spotLight.shadow.camera.near = 1;
+            //spotLight.shadow.camera.far = 10;
+
+            let spotHelper = new THREE.SpotLightHelper(spotLight);
+            let bulbHelper = new THREE.PointLightHelper(bulbLight);
+
+            this.scene.add(ambient);
+
+            this.scene.add(spotLight);
+            //this.scene.add(spotHelper);
+
+            this.scene.add(bulbLight);
+            //this.scene.add(bulbHelper);
+
+
+
+            //this.scene.fog = new THREE.Fog(0x9db3b5, 600, 2000);  // linear fog
+            //this.scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0035 );
+
 
             /**
              * ====== /HACK ====

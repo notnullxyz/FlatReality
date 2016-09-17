@@ -19,5 +19,8 @@ s.init().then((vitals) => {
     console.log('Deal with error: ' + error);
 });
 
+
+
+
 // After this, the loop runs...
 

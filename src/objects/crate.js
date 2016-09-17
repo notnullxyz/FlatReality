@@ -3,6 +3,8 @@
 let THREE = require('three');
 let WorldObject = require('./WorldObject');
 
+let AssetManager = require("../AssetManager");
+
 const DEFAULT_CRATE_COLOR = 0xbfbfbf;
 
 /**
@@ -22,6 +24,13 @@ class CrateGroup extends WorldObject {
         this.color = DEFAULT_CRATE_COLOR;
     }
 
+    loadAssets() {
+        // let assMan = new AssetManager();
+        // assMan.enqueue("http://notnull.xyz/cdn/tex/crate2_diffuse.png");
+        // assMan.enqueue("http://notnull.xyz/cdn/tex/crate2_bump.png");
+        // assMan.downloadQueue();
+    }
+
     /**
      * Creates a single cloned crate from the original (base) crate.
      * @param color Optional color in Hex, defaults to a shade of grey.
@@ -39,10 +48,15 @@ class CrateGroup extends WorldObject {
             this.crateGeometry = new THREE.CubeGeometry(1, 1, 1);
             this.crateGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
 
-            let crateTexture = new THREE.ImageUtils.loadTexture("../../tex/crate2_diffuse.png");
-            let crateBump = THREE.ImageUtils.loadTexture("../../tex/crate2_bump.png");
+            let textureLoader = new THREE.TextureLoader();
+            textureLoader.crossOrigin = '';
+            let crateTexture = textureLoader.load("http://notnull.xyz/cdn/tex/crate2_diffuse.png");
+            let crateBump = textureLoader.load("http://notnull.xyz/cdn/tex/crate2_bump.png");
 
-            this.crateMaterial = new THREE.MeshLambertMaterial(
+            //let crateTexture = new THREE.ImageUtils.loadTexture("../../tex/crate2_diffuse.png");
+            //let crateBump = THREE.ImageUtils.loadTexture("../../tex/crate2_bump.png");
+
+            this.crateMaterial = new THREE.MeshPhongMaterial(
                 {
                     overdraw: true,
                     color: this.color,

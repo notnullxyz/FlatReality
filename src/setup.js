@@ -5,12 +5,14 @@ let THREE = require('three');
 // Stuff added for devel
 let CrateGroup = require("./objects/crate");
 let LightFactory = require("./objects/lights/LightFactory");
+let AssetManager = require("./AssetManager");
 
 const RENDERER = "webgl";   // or 'canvas' or ...
 
 class Setup {
 
     constructor() {
+        this.assetLoader = new AssetManager();
     }
 
     /**
@@ -142,27 +144,31 @@ class Setup {
             // Ground plane
             let groundGeo = new THREE.PlaneGeometry(3000, 3000, 20, 20);
 
-            // The default ground texture
-            let groundTex = new THREE.ImageUtils.loadTexture("../tex/rock.png");
+            this.assetLoader.enqueue("http://notnull.xyz/cdn/tex/rock.png");
+            this.assetLoader.downloadQueue().then((i) => {
+                console.log('This queue only finished now...' + i);
+                let groundTex = this.assetLoader.getTexture("http://notnull.xyz/cdn/tex/rock.png");
+                let groundMat = new THREE.MeshLambertMaterial(
+                    {
+                        color: 0x604020,
+                        overdraw: true,
+                        map: groundTex
+                    }
+                );
 
-            let groundMat = new THREE.MeshLambertMaterial(
-                {
-                    color: 0x604020,
-                    overdraw: true,
-                    map: groundTex
-                }
-            );
-            this.ground = new THREE.Mesh(groundGeo, groundMat);
-            this.ground.receiveShadow = true;   // @todo - break out options to Tuning
+                this.ground = new THREE.Mesh(groundGeo, groundMat);
+                this.ground.receiveShadow = true;   // @todo - break out options to Tuning
 
-            this.ground.material.map.repeat.set(8, 8);
-            this.ground.material.map.wrapS = this.ground.material.map.wrapT = THREE.RepeatWrapping;
+                this.ground.material.map.repeat.set(8, 8);
+                this.ground.material.map.wrapS = this.ground.material.map.wrapT = THREE.RepeatWrapping;
 
-            // rotate ground plane to proper orientation and add to scene
-            this.ground.rotation.x = -90 * Math.PI / 180;
+                // rotate ground plane to proper orientation and add to scene
+                this.ground.rotation.x = -90 * Math.PI / 180;
 
-            this.scene.add(this.ground);
-            delete this.ground;
+                this.scene.add(this.ground);
+
+            });
+
 
 
             /**
@@ -176,13 +182,14 @@ class Setup {
 
 
             let ambient = LightFactory.create('ambient');
-            ambient.intensity = 0.85;
+            ambient.color = 0xffffff;
+            ambient.intensity = 0.90;
 
-            let bulbLight = LightFactory.create('point', 0xffff99, 1, true, 2048, 600);
-            bulbLight.position.set(500, 100, 35);
+            let bulbLight = LightFactory.create('point', 0xffff99, 1, true, 2048, 700);
+            bulbLight.position.set(500, 80, 35);
 
-            let spotLight = LightFactory.create('spot', 0x66ff99, 1, true, 2048, 280);
-            spotLight.position.set(-25, 60, 55);
+            let spotLight = LightFactory.create('spot', 0x66ff99, 1, true, 2048, 200);
+            spotLight.position.set(-25, 40, 55);
 
             // Some options for the spotLight
             spotLight.angle = Math.PI / 4;
@@ -208,6 +215,8 @@ class Setup {
             //this.scene.fog = new THREE.Fog(0x9db3b5, 600, 2000);  // linear fog
             //this.scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0035 );
 
+            var hemLight = new THREE.HemisphereLight(0xffFFFF, 0xFFFFFF, .5);
+            this.scene.add(hemLight);
 
             /**
              * ====== /HACK ====================================================

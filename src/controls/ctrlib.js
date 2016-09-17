@@ -89,7 +89,7 @@ var ctrlib = {
     updateControls: function() {
         if (controlsEnabled) {
             var delta = clock.getDelta();
-            var walkingSpeed = 200.0;
+            var walkingSpeed = 1000.0;
 
             velocity.x -= velocity.x * 10.0 * delta;
             velocity.z -= velocity.z * 10.0 * delta;

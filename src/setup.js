@@ -147,7 +147,10 @@ class Setup {
             this.assetLoader.enqueue("http://notnull.xyz/cdn/tex/rock.png");
             this.assetLoader.downloadQueue().then((i) => {
                 console.log('This queue only finished now...' + i);
-                let groundTex = this.assetLoader.getTexture("http://notnull.xyz/cdn/tex/rock.png");
+
+                let groundTex = this.assetLoader.getAsset("http://notnull.xyz/cdn/tex/rock.png");
+
+                console.log('groundtex done ' + groundTex);
                 let groundMat = new THREE.MeshLambertMaterial(
                     {
                         color: 0x604020,
@@ -165,12 +168,19 @@ class Setup {
                 // rotate ground plane to proper orientation and add to scene
                 this.ground.rotation.x = -90 * Math.PI / 180;
 
+                console.log('.......');
                 this.scene.add(this.ground);
 
+                this.hackInDevObjects().then(() => {
+                    return resolve();
+                });
             });
+        });
+    }
 
-
-
+    hackInDevObjects() {
+        return new Promise((resolve, reject) => {
+            console.log("Hacking in dev objects");
             /**
              * ============= HACK IN SOME STUFF FOR NOW =====================
              */
@@ -221,10 +231,6 @@ class Setup {
             /**
              * ====== /HACK ====================================================
              */
-
-
-
-            return resolve();
         });
     }
 

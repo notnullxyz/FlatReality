@@ -36,26 +36,29 @@ class AssetManager {
 
             for (let i = 0; i < this.queue.length; i++) {
                 let path = this.queue[i];
-                let img = new Image();
+                let imageLoader = new THREE.TextureLoader();
 
-                img.addEventListener("load", () => {
+                let onLoad = ((loadedImage) => {
+                    console.log(' a load completed for ' + path);
                     this.successCount++;
-                    if (this.isComplete()) {
+                    this.cache[path] = loadedImage;
+                    if (this._isComplete()) {
                         console.log('Completed, resolving from load.');
                         return resolve([this.queue.length, this.successCount, this.errorCount]);
                     }
-                }, false);
+                });
 
-                img.addEventListener("error", () => {
+                let onError = ((error) => {
+                    console.log('some error: ' + error);
                     this.errorCount++;
-                    if (this.isComplete()) {
+                    if (this._isComplete()) {
                         console.log('Completed, resolving from error.');
                         return resolve([this.queue.length, this.successCount, this.errorCount]);
                     }
-                }, false);
+                });
 
-                img.src = path;
-                this.cache[path] = img;
+                console.log('trying a load...');
+                imageLoader.load(path, onLoad);
             }
         });
     }
@@ -64,7 +67,7 @@ class AssetManager {
      * Used by the AssetManager itself to check completion state.
      * @returns {boolean}
      */
-    isComplete() {
+    _isComplete() {
         return (this.queue.length == this.successCount + this.errorCount);
     }
 
@@ -75,18 +78,7 @@ class AssetManager {
      */
     getAsset(path) {
         console.log('Fetching cached asset : ' + path);
-        console.log(this.cache);
         return this.cache[path];
-    }
-
-    getTexture(path) {
-        let imagerLoader = new THREE.ImageLoader();
-        console.log('Loading cached asset As a texture: ' + path);
-        console.log(this.cache);
-        imagerLoader.load(this.cache[path], (image) => {
-            console.log('---- :)');
-            return image;
-        });
     }
 
 }

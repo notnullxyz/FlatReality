@@ -164,9 +164,13 @@ class Setup {
             //for (let n of crateGroup.generateCrate(20)) {
             //    this.scene.add(n);
             //}
-            this.scene.add(crateGroup.generateCrateMeshMergedGroup(500, 0x262626));
+            console.log('GOING TO TRY FOR MANY CRATES');
+            crateGroup.generateCrateMeshMergedGroup(500, 0x262626).then((crateGroupMesh) => {
+                this.scene.add(crateGroupMesh);
+                console.log('MANY CREATED ' + crateGroup.createdCratesCount);
+            });
 
-
+            console.log('GOING ON WITH LIGHTS IN THE MEANTIME');
             let ambient = LightFactory.create('ambient');
             ambient.intensity = 0.55;
 

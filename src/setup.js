@@ -6,6 +6,8 @@ let THREE = require('three');
 let CrateGroup = require("./objects/crate");
 let LightFactory = require("./objects/lights/LightFactory");
 
+let AssetLoader = require("./AssetLoader");
+
 const RENDERER = "webgl";   // or 'canvas' or ...
 
 class Setup {
@@ -137,25 +139,48 @@ class Setup {
      */
     setupWorld() {
         console.log('Running setupWorld()');
+        let assetLoader = new AssetLoader();
 
         return new Promise((resolve, reject) => {
-            // Ground plane
-            var groundGeo = new THREE.PlaneGeometry(3000, 3000, 20, 20);
-            var groundMat = new THREE.MeshPhongMaterial(
-                {
-                    color: 0x604020,
-                    overdraw: true
-                }
-            );
-            this.ground = new THREE.Mesh(groundGeo, groundMat);
-            this.ground.receiveShadow = true;   // @todo - break out options to Tuning
 
-            // rotate ground plane to proper orientation and add to scene
-            this.ground.rotation.x = -90 * Math.PI / 180;
+            const groundTexNormal = "http://notnull.xyz/cdn/tex/stonetiles_003_norm.png";
+            const groundTexDiffuse = "http://notnull.xyz/cdn/tex/stonetiles_003_diff.png";
+            const GROUND_REPEAT = 256;
 
-            this.scene.add(this.ground);
-            delete this.ground;
+            assetLoader.queueTex(groundTexDiffuse); // ground texture diffuse
+            assetLoader.queueTex(groundTexNormal); // ground texture normal
 
+            assetLoader.loadAll().then(() => {
+
+                let groundTexture = assetLoader.getTex(groundTexDiffuse);
+                let groundBump = assetLoader.getTex(groundTexNormal);
+
+                groundTexture.wrapS = THREE.RepeatWrapping;
+                groundTexture.wrapT = THREE.RepeatWrapping;
+                groundBump.wrapS = THREE.RepeatWrapping;
+                groundBump.wrapT = THREE.RepeatWrapping;
+
+                // Ground plane
+                var groundGeo = new THREE.PlaneGeometry(3000, 3000, 20, 20);
+                var groundMat = new THREE.MeshPhongMaterial(
+                    {
+                        color: 0x604020,
+                        overdraw: true,
+                        map: groundTexture,
+                        bumpMap: groundBump
+                    }
+                );
+                groundMat.map.repeat.set(GROUND_REPEAT, GROUND_REPEAT);
+                this.ground = new THREE.Mesh(groundGeo, groundMat);
+                this.ground.receiveShadow = true;   // @todo - break out options to Tuning
+
+                // rotate ground plane to proper orientation and add to scene
+                this.ground.rotation.x = -90 * Math.PI / 180;
+
+                this.scene.add(this.ground);
+                delete this.ground;
+
+            });
 
             /**
              * HACK IN SOME STUFF FOR NOW
@@ -164,16 +189,24 @@ class Setup {
             //for (let n of crateGroup.generateCrate(20)) {
             //    this.scene.add(n);
             //}
-            this.scene.add(crateGroup.generateCrateMeshMergedGroup(500, 0x262626));
 
+            crateGroup.generateCrateMeshMergedGroup(500, 0x262626).then((crateGroupMesh) => {
+                this.scene.add(crateGroupMesh);
+            });
 
             let ambient = LightFactory.create('ambient');
-            ambient.intensity = 0.55;
+            ambient.intensity = 0.95;
 
-            let bulbLight = LightFactory.create('point', 0xffff99, 1, true, 2048, 600);
+            let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
+            hemiLight.color.setHSL(0.6, 1, 0.6);
+            hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+            hemiLight.position.set(0, 500, 0);
+            this.scene.add(hemiLight);
+
+            let bulbLight = LightFactory.create('point', 0xffffff, 1, true, 2048, 800);
             bulbLight.position.set(600, 200, 35);
 
-            let spotLight = LightFactory.create('spot', 0x66ff99, 1, true, 2048, 280);
+            let spotLight = LightFactory.create('spot', 0x66ff99, 1, true, 2048, 380);
             spotLight.position.set(25, 30, 55);
 
             // Some options for the spotLight
@@ -201,6 +234,8 @@ class Setup {
 
             //this.scene.fog = new THREE.Fog(0x9db3b5, 600, 2000);  // linear fog
             //this.scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0035 );
+            //this.scene.fog = new THREE.Fog( 0xffffff, 1, 5000 );
+            //this.scene.fog.color.setHSL( 0.6, 0, 1 );
 
 
             /**

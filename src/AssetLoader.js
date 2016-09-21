@@ -3,17 +3,27 @@
 const THREE = require("three");
 
 /**
+ * Texture and Other Asset Management.
  * An attempt at a reliable loader that integrates with Three's texture loader and manager.
+ * Loads, caches and supplies assets, using Promises to ensure async romance.
+ * Caching hogs memory conveniently, until references to handlers are nuked, so keep this in mind. Kill your references.
+ * @author Marlon van der Linde <marlon@notnull.xyz>
  */
 class AssetLoader {
 
-    constructor() {
+    /**
+     * Logic free construction.
+     * Sets up cache object, queue array and handlers.
+     * @param {undefined|Function} managerOnProgress Optional callback function for the Loader Manager on-progress event.
+     * @param {undefined|Function} managerOnLoad Optional callback function for the Loader Manager on-load completed event.
+     */
+    constructor(managerOnProgress = undefined, managerOnLoad = undefined) {
         // instantiate a Three manager.
         this.manager = new THREE.LoadingManager();
 
         // setup handlers for manager
-        this.manager.onProgress = this.managerOnProgress;
-        this.manager.onLoad = this.managerOnLoad;
+        this.manager.onProgress = managerOnProgress || this.managerOnProgress;
+        this.manager.onLoad = managerOnLoad || this.managerOnLoad;
 
         // a local cache of loaded assets
         this.cache = {};
@@ -74,6 +84,7 @@ class AssetLoader {
 
     /**
      * Kill the entire cache.
+     * Should probably not use this. What if we kill a good reference :(
      */
     nuke() {
         this.cache = [];
@@ -101,32 +112,23 @@ class AssetLoader {
     }
 
     /**
-     * Handlers for LoadingManager
-     */
-
-    /**
-     * onProgress handler for the LoadingManager.
+     * Default onProgress handler for the LoadingManager.
      * @param item
      * @param loaded
      * @param total
      */
     managerOnProgress(item, loaded, total) {
-        console.log("manager: On progress");
-        console.log( item, loaded, total );
+        console.log(`threeAsset - onProgress: Loading status: ${item} / ${loaded} / ${total}`);
     };
 
     /**
-     * onLoad handler for the LoadingManager.
+     * Default onLoad handler for the LoadingManager.
      * When all have been loaded, this fires.
      */
     managerOnLoad() {
-        console.log('manager: All loaded.');
+        console.log('threeAsset - onLoad: All loaded.');
     }
 
-
-    /**
-     * Other Handlers
-     */
 
 }
 

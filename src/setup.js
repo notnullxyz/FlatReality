@@ -10,8 +10,17 @@ let AssetLoader = require("./AssetLoader");
 
 const RENDERER = "webgl";   // or 'canvas' or ...
 
+/**
+ * World setup. Responsible for init of all basic 'as we enter' states.
+ * Initial cameras, lights, renderer setup etc.
+ * @author Marlon van der Linde <marlon@notnull.xyz>
+ */
 class Setup {
 
+    /**
+     * COnstructor.
+     * Try keep this one clear please.
+     */
     constructor() {
     }
 
@@ -135,6 +144,7 @@ class Setup {
 
     /**
      * Setup the world aspects, cloned/merged objects, groundplane etc.
+     * This method is messy, because it's hacked full of object init used during dev.
      * @returns {Promise}
      */
     setupWorld() {

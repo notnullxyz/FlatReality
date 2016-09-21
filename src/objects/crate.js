@@ -7,14 +7,15 @@ let AssetLoader = require("../AssetLoader");
 
 const DEFAULT_CRATE_COLOR = 0xbfbfbf;
 
-
 // not ideal, just for now... keep textures required here:
+// This stuff will go to server config when I get time for config daemon.
 const T_crateTexture = "http://notnull.xyz/cdn/tex/metalbox_diffuse.png";
 const T_crateBump = "http://notnull.xyz/cdn/tex/metalbox_bump.png";
 
 
 /**
  * A merged geometry of crates, procedurally generated.
+ * @author Marlon van der Linde <marlon@notnull.xyz>
  */
 class CrateGroup extends WorldObject {
 

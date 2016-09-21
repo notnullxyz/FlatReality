@@ -4,13 +4,12 @@ let THREE = require("three");
 
 const UnsupportedLightError = require("../../errors/UnsupportedLightError");
 
-const SUPPORTED_TYPES = Array('ambient', 'spot', 'directional', 'point', 'hemi');
-
 /**
  * FlatReality Light factory.
  * Creates simple, default lights, configurable to a certain degree, leaving the caller with the option of controlling
  * other usual aspects from the there onwards. This was created for development purposes, but can be used for any
  * light creation nevertheless.
+ * @author Marlon van der Linde <marlon@notnull.xyz>
  */
 class LightFactory {
 
@@ -70,7 +69,8 @@ class LightFactory {
 
             case 'point':
                 light = new THREE.PointLight(color, intensity, distance);
-                // iirc, pointlights can now do shadows.
+
+                // iirc, pointlights can now do shadows?
                 light.castShadow = castShadows;
                 light.shadow.mapSize.width = light.shadow.mapSize.height = shadowMapSize;
                 break;

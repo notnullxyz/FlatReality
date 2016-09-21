@@ -2,7 +2,7 @@
 "use strict";
 
 /**
- * A marker type for basic world objects.
+ * Marker type for basic world objects.
  */
 class WorldObject {
     constructor() {

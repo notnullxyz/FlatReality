@@ -1,8 +1,15 @@
 "use strict";
 
+//
+// This is the main entry point. Keep clean at all costs!
+// @author Marlon van der Linde <marlon@notnull.xyz>
+//
+
+// Two important parts, the initial setup, and the render loop!
 let Setup = require("./setup");
 let GameLoop = require("./gameloop");
 
+// MrDoob's stats lib for the performance metrics in the corner :-)
 function stat() {
     var script=document.createElement('script');
     script.onload=function() {
@@ -16,11 +23,9 @@ function stat() {
     script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';
     document.head.appendChild(script);
 }
-
 stat();
 
-
-// Create EMPTY WORLD
+// Create empty world, then on promise fulfilment, kick off GameLoop.
 let s = new Setup();
 s.init().then((vitals) => {
 
@@ -33,8 +38,6 @@ s.init().then((vitals) => {
     );
 
 }).catch((error) => {
+    // Error Handler and exception recovery... coming soon.
     console.log('Deal with error: ' + error);
 });
-
-// After this, the loop runs...
-

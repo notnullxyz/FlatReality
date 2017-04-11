@@ -1,12 +1,19 @@
 # README #
 
-FlatReality is the codename for an WebGL idea-project I have in mind. This repo represents a base, buildable, devvable starting point for this project.
-I have implemented a ready to clone, ready to build and deploy codebase based on ThreeJS, with the following, gratis:
+FlatReality is the codename for my 3D WebGL project. 
+
+This repo represents a base, buildable, devvable starting point for this project.
+
+I have implemented a ready to clone, ready to build and deploy codebase based on ThreeJS.
+
+### Implemented and Working ###
 
 * Basic WASD+Jump controls/inputs (with a Perspective Camera)
 * An asynchronous loader for the textures (which you can see on the floors and cubes)
 * Procedurally generated cubes, so that the base scene has something to work with.
 * Some light sources (Direction, Point, Hemi)
+
+### What is still needed? ###
 
 What is still needed, is collision detection, websockets and to hook up my current 'infinite world generation' code, but I am not sure if that will be integrated into this repository yet.
 
